@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cleaning Schedule</title>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--ink:#17212b;--muted:#667481;--line:#e3e8ed;--blue:#1479b8;--blue-soft:#e8f4fb;--green:#287a4b;--green-soft:#e9f5ed;--orange:#b56b19;--orange-soft:#fff3e4;--shadow:0 8px 28px rgba(25,45,65,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:#12344b;color:white;padding:22px max(20px,calc((100vw - 1220px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-size:21px;font-weight:750;letter-spacing:.2px}.sub{font-size:13px;color:#c7d8e4;margin-top:3px}
+main{max-width:1220px;margin:24px auto;padding:0 18px 42px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin-bottom:16px}
+.control{display:flex;flex-direction:column;gap:5px}.control label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+select,button{font:inherit;border:1px solid var(--line);border-radius:10px;background:white;color:var(--ink);padding:10px 12px}
+select{min-width:210px}button{cursor:pointer;font-weight:650}button:hover{border-color:#9eb6c8}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}
+.stat{padding:14px 16px}.stat strong{display:block;font-size:25px}.stat span{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.9fr);gap:16px}
+.panel{padding:16px;min-width:0}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+h2{font-size:17px;margin:0}.month-nav{display:flex;align-items:center;gap:8px}.month-nav button{padding:7px 10px}.month-label{font-weight:750;min-width:145px;text-align:center}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.weekday{text-align:center;color:var(--muted);font-size:11px;font-weight:750;padding:7px 0}
+.day{min-height:83px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:7px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:5px;min-width:0}
+.day:hover{border-color:#8eb7d0;background:#f9fcfe}.day.out{background:#f7f8fa;color:#aab3bb;cursor:default}.day.selected{border:2px solid var(--blue);background:var(--blue-soft);padding:6px}.daynum{font-size:13px;font-weight:700}.count{font-size:10px;color:#176b9f;background:#e6f3fb;border-radius:5px;padding:2px 4px;width:max-content;max-width:100%;white-space:nowrap}
+.dotrow{display:flex;gap:3px;flex-wrap:wrap}.dot{width:6px;height:6px;border-radius:50%;background:#1698ce}.dot.done{background:#32965b}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:12px}.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:#1698ce}.legend .done{background:#32965b}
+.detail-date{font-size:13px;color:var(--muted);margin-top:3px}.task-list{display:flex;flex-direction:column;gap:9px}.task{border:1px solid var(--line);border-radius:11px;padding:11px 12px;display:flex;gap:10px;align-items:flex-start}
+.task input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--green);flex:none}.task-main{min-width:0;flex:1}.room{font-weight:750;font-size:14px}.taskname{font-size:13px;color:#465562;margin-top:2px}.task.completed{background:#f5faf6}.task.completed .taskname{text-decoration:line-through;color:#81918a}.empty{padding:24px 12px;text-align:center;color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:12px}
+.note{font-size:12px;color:var(--muted);margin-top:14px}.pill{font-size:11px;padding:4px 8px;border-radius:20px;background:#eef2f5;color:#53616c}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.day{min-height:70px}.stats{gap:8px}.stat{padding:11px}.stat strong{font-size:21px}}
+@media(max-width:520px){header{padding:17px 18px}.brand{font-size:18px}main{margin:16px auto;padding:0 10px 28px}.panel{padding:11px}.day{min-height:57px;padding:5px 4px}.day.selected{padding:4px 3px}.count{font-size:9px}.weekday{font-size:10px}.month-label{min-width:120px;font-size:14px}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">Cleaning Schedule</div></div><div class="pill" style="background:#244b63;color:#e8f2f8">DEC 2026 — NOV 2028</div></header>
+<main>
+  <div class="toolbar">
+    <div class="control"><label for="monthSelect">Select month</label><select id="monthSelect"></select></div>
+    <div class="control"><label for="roomSelect">Filter by room</label><select id="roomSelect"><option value="">All rooms</option></select></div>
+    <button id="allRooms">Show all rooms</button>
+  </div>
+  <section class="stats">
+    <div class="stat"><strong id="totalCount">0</strong><span>Tasks this month</span></div>
+    <div class="stat"><strong id="doneCount">0</strong><span>Completed</span></div>
+    <div class="stat"><strong id="remainingCount">0</strong><span>Remaining</span></div>
+  </section>
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-head"><h2>Calendar</h2><div class="month-nav"><button id="prev" aria-label="Previous month">‹</button><div class="month-label" id="monthLabel"></div><button id="next" aria-label="Next month">›</button></div></div>
+      <div class="calendar" id="calendar"></div>
+      <div class="legend"><span><i></i> Has cleaning tasks</span><span><i class="done"></i> All tasks completed</span></div>
+      
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><h2 id="detailTitle">Daily tasks</h2><div class="detail-date" id="detailDate">Select a date on the calendar</div></div><span class="pill" id="dayCount">0 tasks</span></div>
+      <div class="task-list" id="taskList"><div class="empty">Choose a date to view its cleaning tasks.</div></div>
+      <div class="note">Tick a task when it is complete. Completion is saved in this browser on this device.</div>
+    </section>
+  </div>
+  
+</main>
+<script>
+const rooms = [
+"Inwards Goods Store","Logistics Room","Utilities Room","Change Room (1-2)","Change Room (3)","Airlock (1-5)","Cleaning Room","Fermentation Process Room","Laboratory","Weighing and Bagging Area","Evaporator and Dryer Room"
+];
+const monthlyLast = [
+["Inwards Goods Store","Door handles"],["Logistics Room","Door handles"],
+["Utilities Room","Door handles and wash basin"],
+["Change Room (1-2)","Door handles and wash basin"],
+["Change Room (3)","Door handles and wash basin"],
+["Airlock (1-5)","Door handles"],
+["Cleaning Room","Door handles, wash basin and bench"],
+["Fermentation Process Room","Door handles"],
+["Laboratory","Door handles, wash basin and bench"],
+["Weighing and Bagging Area","Door handles"],
+["Evaporator and Dryer Room","Door handles, wash basin and bench"]
+];
+const firstWeek = [
+["Inwards Goods Store","Floor"],["Logistics Room","Floor"],["Utilities Room","Floor"],["Utilities Room","Bench"],
+["Change Room (1-2)","Floor"],["Change Room (3)","Floor"],["Airlock (1-5)","Floor"]
+];
+const middle = [["Fermentation Process Room","Floor"],["Laboratory","Floor"]];
+const start = new Date(2026,11,1), end = new Date(2028,10,30);
+const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const pad=n=>String(n).padStart(2,"0");
+const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const monthKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+const fmt=d=>`${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+const firstFriday=(y,m)=>{let d=new Date(y,m,1);while(d.getDay()!==5)d.setDate(d.getDate()+1);return d};
+const lastFriday=(y,m)=>{let d=new Date(y,m+1,0);while(d.getDay()!==5)d.setDate(d.getDate()-1);return d};
+const nearestFriday15=(y,m)=>{let best=null,dist=99;for(let day=8;day<=22;day++){let d=new Date(y,m,day);if(d.getDay()===5&&Math.abs(day-15)<dist){best=d;dist=Math.abs(day-15)}}return best};
+function tasksForDate(d){
+ if(d.getDay()!==5)return [];
+ const y=d.getFullYear(),m=d.getMonth(),key=dateKey(d),out=[];
+ const add=(room,task,period)=>out.push({id:`${key}|${room}|${task}`,room,task,period});
+ if(d.getTime()===firstFriday(y,m).getTime()) firstWeek.forEach(([r,t])=>add(r,t,"First Friday"));
+ if(d.getTime()===nearestFriday15(y,m).getTime()) middle.forEach(([r,t])=>add(r,t,"Middle of month"));
+ if(d.getTime()===lastFriday(y,m).getTime()) monthlyLast.forEach(([r,t])=>add(r,t,"Last Friday"));
+ add("Cleaning Room","Floor, wash basin and bench","Weekly");
+ return out;
+}
+const allDates=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))allDates.push(new Date(d));
+const completionKey="cleaningScheduleCompleted_v1";
+let completed={};try{completed=JSON.parse(localStorage.getItem(completionKey)||"{}")}catch(e){}
+let currentMonth=new Date(2026,11,1),selectedDate=null;
+const monthSelect=document.getElementById("monthSelect"),roomSelect=document.getElementById("roomSelect");
+for(let d=new Date(start);d<=end;d.setMonth(d.getMonth()+1)){let o=document.createElement("option");o.value=monthKey(d);o.textContent=`${monthNames[d.getMonth()]} ${d.getFullYear()}`;monthSelect.append(o)}
+rooms.forEach(r=>{let o=document.createElement("option");o.value=r;o.textContent=r;roomSelect.append(o)});
+function filteredTasks(d){let t=tasksForDate(d);return roomSelect.value?t.filter(x=>x.room===roomSelect.value):t}
+function monthTasks(){let out=[];for(let d=new Date(currentMonth.getFullYear(),currentMonth.getMonth(),1);d.getMonth()===currentMonth.getMonth();d.setDate(d.getDate()+1))out.push(...filteredTasks(d));return out}
+function renderStats(){let t=monthTasks(),done=t.filter(x=>completed[x.id]).length;document.getElementById("totalCount").textContent=t.length;document.getElementById("doneCount").textContent=done;document.getElementById("remainingCount").textContent=t.length-done}
+function renderCalendar(){
+ const root=document.getElementById("calendar");root.innerHTML="";
+ ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach(x=>{let e=document.createElement("div");e.className="weekday";e.textContent=x;root.append(e)});
+ const y=currentMonth.getFullYear(),m=currentMonth.getMonth(),first=new Date(y,m,1),offset=(first.getDay()+6)%7;
+ const days=new Date(y,m+1,0).getDate(),cells=Math.ceil((offset+days)/7)*7;
+ for(let i=0;i<cells;i++){
+  let dayNum=i-offset+1,cell=document.createElement("button");cell.type="button";cell.className="day";
+  if(dayNum<1||dayNum>days){cell.classList.add("out");cell.disabled=true;root.append(cell);continue}
+  let d=new Date(y,m,dayNum),tasks=filteredTasks(d),done=tasks.length>0&&tasks.every(t=>completed[t.id]);
+  if(selectedDate&&dateKey(d)===dateKey(selectedDate))cell.classList.add("selected");
+  let n=document.createElement("span");n.className="daynum";n.textContent=dayNum;cell.append(n);
+  if(tasks.length){let c=document.createElement("span");c.className="count";c.textContent=`${tasks.length} task${tasks.length===1?"":"s"}`;cell.append(c);let dots=document.createElement("span");dots.className="dotrow";for(let j=0;j<Math.min(tasks.length,7);j++){let dot=document.createElement("i");dot.className="dot"+(completed[tasks[j].id]?" done":"");dots.append(dot)}cell.append(dots);if(done)cell.style.background="#f0f8f2"}
+  cell.addEventListener("click",()=>{selectedDate=d;renderCalendar();renderDetails()});root.append(cell);
+ }
+ document.getElementById("monthLabel").textContent=`${monthNames[m]} ${y}`;
+ monthSelect.value=monthKey(currentMonth);renderStats();
+}
+function renderDetails(){
+ const title=document.getElementById("detailTitle"),date=document.getElementById("detailDate"),list=document.getElementById("taskList"),count=document.getElementById("dayCount");
+ if(!selectedDate){return}
+ let tasks=filteredTasks(selectedDate);title.textContent="Daily tasks";date.textContent=fmt(selectedDate);count.textContent=`${tasks.length} task${tasks.length===1?"":"s"}`;list.innerHTML="";
+ if(!tasks.length){list.innerHTML='<div class="empty">No cleaning tasks scheduled for this date with the current room filter.</div>';return}
+ tasks.forEach(t=>{
+  let row=document.createElement("label");row.className="task"+(completed[t.id]?" completed":"");
+  let cb=document.createElement("input");cb.type="checkbox";cb.checked=!!completed[t.id];
+  cb.addEventListener("change",()=>{if(cb.checked)completed[t.id]=true;else delete completed[t.id];localStorage.setItem(completionKey,JSON.stringify(completed));renderDetails();renderCalendar()});
+  let main=document.createElement("div");main.className="task-main";
+  let r=document.createElement("div");r.className="room";r.textContent=t.room;
+  let task=document.createElement("div");task.className="taskname";task.textContent=t.task;
+  main.append(r,task);row.append(cb,main);list.append(row);
+ });
+}
+function setMonth(value){let [y,m]=value.split("-").map(Number);currentMonth=new Date(y,m-1,1);selectedDate=null;renderCalendar();document.getElementById("detailDate").textContent="Select a date on the calendar";document.getElementById("taskList").innerHTML='<div class="empty">Choose a date to view its cleaning tasks.</div>';document.getElementById("dayCount").textContent="0 tasks"}
+monthSelect.addEventListener("change",()=>setMonth(monthSelect.value));
+roomSelect.addEventListener("change",()=>{renderCalendar();renderDetails()});
+document.getElementById("allRooms").addEventListener("click",()=>{roomSelect.value="";renderCalendar();renderDetails()});
+document.getElementById("prev").addEventListener("click",()=>{if(currentMonth>start){let d=new Date(currentMonth);d.setMonth(d.getMonth()-1);setMonth(monthKey(d))}});
+document.getElementById("next").addEventListener("click",()=>{if(currentMonth<new Date(2028,10,1)){let d=new Date(currentMonth);d.setMonth(d.getMonth()+1);setMonth(monthKey(d))}});
+renderCalendar();
+</script>
+</body>
+</html>
